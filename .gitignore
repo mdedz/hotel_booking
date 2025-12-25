@@ -1,2 +1,4 @@
 .venv/
 test.sh
+__pycache__/
+staticfiles/

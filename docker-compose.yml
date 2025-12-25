@@ -6,19 +6,17 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-hotel}
       POSTGRES_USER: ${POSTGRES_USER:-hotel}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     volumes:
       - pgdata:/var/lib/postgresql/data
 
   web:
     build: .
-    command: >
-      sh -c "
-      python manage.py migrate &&
-      python manage.py collectstatic --noinput &&
-      gunicorn hotel_booking.wsgi:application
-      --bind 0.0.0.0:8000
-      --workers 3
-      "
+    command: sh /app/entrypoint.sh
     volumes:
       - .:/app
     ports:
@@ -28,7 +26,8 @@ services:
       SECRET_KEY: ${SECRET_KEY:-changeme}
       DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:

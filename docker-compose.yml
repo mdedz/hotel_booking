@@ -31,6 +31,10 @@ services:
       DATABASE_HOST: db
       DATABASE_PORT: 5432
 
+      DJANGO_SUPERUSER_USERNAME: ${DJANGO_SUPERUSER_USERNAME:-admin}
+      DJANGO_SUPERUSER_PASSWORD: ${DJANGO_SUPERUSER_PASSWORD:-admin}
+      DJANGO_SUPERUSER_EMAIL: ${DJANGO_SUPERUSER_PASSWORD}
+
     depends_on:
       db:
         condition: service_healthy

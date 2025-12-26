@@ -20,6 +20,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'bookings.apps.BookingsConfig',
+    "widget_tweaks",
 ]
 
 MIDDLEWARE = [

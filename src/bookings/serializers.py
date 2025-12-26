@@ -24,8 +24,21 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         fields = ('id', 'room', 'start_date', 'end_date')
 
     def validate(self, attrs: dict) -> dict:
+        start = attrs['start_date']
+        end = attrs['end_date']
+        room = attrs['room']
+        
         if attrs['end_date'] <= attrs['start_date']:
             raise serializers.ValidationError('end_date must be after start_date')
+        
+        if Booking.objects.filter(
+            room=room,
+            status=Booking.STATUS_ACTIVE,
+            start_date__lt=end,
+            end_date__gt=start
+        ).exists():
+            raise serializers.ValidationError("Room is already booked for these dates")
+        
         return attrs
 
     def create(self, validated_data: dict) -> Booking:

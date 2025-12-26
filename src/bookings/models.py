@@ -65,8 +65,10 @@ class Booking(models.Model):
 
     @property
     def nights(self) -> int:
-        return (self.end_date - self.start_date).days
-
+        if self.start_date and self.end_date:
+            return (self.end_date - self.start_date).days
+        return 0
+    
     def cancel(self, by_user: Optional[type[AbstractUser]] = None) -> None:
         self.status = self.STATUS_CANCELLED
         self.save()

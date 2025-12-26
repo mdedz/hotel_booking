@@ -7,7 +7,6 @@ from bookings.models import Booking, Room
 
 def rooms_list(request):
     rooms = Room.objects.all()
-    # фильтры
     min_price = request.GET.get('min_price')
     max_price = request.GET.get('max_price')
     capacity = request.GET.get('capacity')
@@ -52,6 +51,7 @@ def my_bookings_view(request):
 @login_required
 def book_room_view(request, room_id):
     room = get_object_or_404(Room, id=room_id)
+    guests_range = range(1, room.capacity + 1)
     if request.method == 'POST':
         start = request.POST.get('start_date')
         end = request.POST.get('end_date')
@@ -59,8 +59,9 @@ def book_room_view(request, room_id):
             booking = Booking.objects.create(user=request.user, room=room, start_date=start, end_date=end)
             return redirect('my_bookings')
         except Exception as e:
-            return render(request, 'bookings/book_room.html', {'room': room, 'error': str(e)})
-    return render(request, 'bookings/book_room.html', {'room': room})
+            return render(request, 'bookings/book_room.html', {'room': room, 'guests_range': guests_range, 'error': str(e)})
+    
+    return render(request, 'bookings/book_room.html', {'room': room, 'guests_range': guests_range})
 
 @login_required
 def cancel_booking_view(request, booking_id):

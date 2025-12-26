@@ -23,6 +23,7 @@ class RoomFilter(FilterSet):
         model = Room
         fields = ['min_price', 'max_price', 'capacity']
 
+
 class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
@@ -57,6 +58,7 @@ class RoomViewSet(viewsets.ReadOnlyModelViewSet):
         
         serializer = self.get_serializer(available_rooms, many=True)
         return Response(serializer.data)
+
 
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.select_related('room', 'user').all()

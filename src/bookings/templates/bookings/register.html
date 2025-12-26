@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-8 col-lg-6">
+  <div>
     <div class="card-modern">
       <h1 class="h1-modern">Create an account</h1>
       <p class="form-note">Quick sign up — no fuss. Use a strong password.</p>
@@ -13,9 +13,7 @@
         {% csrf_token %}
         <div class="mb-3 input-icon">
             <i class="bi bi-person icon"></i>
-            <div class="form-group">
-            {{ form.username|add_class:"form-control-modern"|attr:"placeholder:Username"|attr:"autofocus" }}
-            </div>
+            {{ form.username|add_class:"form-control-modern"|attr:"placeholder:Username" }}
             {% if form.username.errors %}
                 <div class="form-text text-danger">{{ form.username.errors|striptags }}</div>
             {% endif %}
@@ -23,9 +21,7 @@
 
         <div class="mb-3 input-icon">
             <i class="bi bi-lock icon"></i>
-            <div class="form-group">
             {{ form.password1|add_class:"form-control-modern"|attr:"placeholder:Password" }}
-            </div>
             {% if form.password1.errors %}
                 <div class="form-text text-danger">{{ form.password1.errors|striptags }}</div>
             {% endif %}
@@ -33,9 +29,7 @@
 
         <div class="mb-3 input-icon">
             <i class="bi bi-lock-fill icon"></i>
-            <div class="form-group">
             {{ form.password2|add_class:"form-control-modern"|attr:"placeholder:Password" }}
-            </div>
             {% if form.password2.errors %}
                 <div class="form-text text-danger">{{ form.password2.errors|striptags }}</div>
             {% endif %}

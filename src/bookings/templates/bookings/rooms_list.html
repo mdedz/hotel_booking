@@ -1,10 +1,105 @@
 {% extends "base.html" %}
+{% load querystring %}
 {% block title %}Rooms · HotelBooking{% endblock %}
 {% block content %}
 
-<div class="mb-4 d-flex justify-content-between align-items-center">
+<form method="get" class="mb-4">
+  <div class="d-flex flex-wrap align-items-center gap-2">
+
+    <!-- From -->
+    <div class="input-icon compact">
+      <i class="bi bi-calendar icon"></i>
+      <input type="text"
+             name="start_date"
+             class="form-control-modern form-control-sm date-input"
+             placeholder="From"
+             value="{{ request.GET.start_date }}">
+    </div>
+
+    <!-- To -->
+    <div class="input-icon compact">
+      <i class="bi bi-calendar-check icon"></i>
+      <input type="text"
+             name="end_date"
+             class="form-control-modern form-control-sm date-input"
+             placeholder="To"
+             value="{{ request.GET.end_date }}">
+    </div>
+
+    <!-- Guests -->
+    <select name="capacity"
+            class="form-control-modern form-control-sm compact">
+      <option value="">Guests</option>
+      {% for i in "123456"|make_list %}
+        <option value="{{ i }}" {% if request.GET.capacity == i %}selected{% endif %}>
+          {{ i }}+
+        </option>
+      {% endfor %}
+    </select>
+
+    <!-- Price -->
+    <input type="number"
+           name="min_price"
+           class="form-control-modern form-control-sm compact"
+           placeholder="Min €"
+           value="{{ request.GET.min_price }}">
+
+    <input type="number"
+           name="max_price"
+           class="form-control-modern form-control-sm compact"
+           placeholder="Max €"
+           value="{{ request.GET.max_price }}">
+
+    <!-- Actions -->
+    <button class="btn btn-primary custom btn-sm ms-auto">
+      Search
+    </button>
+
+    {% if request.GET %}
+      <a href="{% url 'rooms_list' %}"
+         class="btn btn-outline custom btn-sm">
+        Reset
+      </a>
+    {% endif %}
+
+  </div>
+</form>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
   <h1 class="h1-modern m-0">Available rooms</h1>
-  <a href="{% url 'register' %}" class="btn btn-primary custom">Create account</a>
+
+  <div class="dropdown">
+    <button class="btn btn-outline custom dropdown-toggle"
+            data-bs-toggle="dropdown">
+      Sort
+    </button>
+    <ul class="dropdown-menu dropdown-menu-dark">
+      <li>
+        <a class="dropdown-item {% if request.GET.ordering == 'price_per_night' %}active{% endif %}"
+          href="{% sort_url 'price_per_night' %}">
+          Price ↑
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item {% if request.GET.ordering == '-price_per_night' %}active{% endif %}"
+          href="{% sort_url '-price_per_night' %}">
+          Price ↓
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item {% if request.GET.ordering == 'capacity' %}active{% endif %}"
+          href="{% sort_url 'capacity' %}">
+          Capacity ↑
+        </a>
+      </li>
+      <li>
+        <a class="dropdown-item {% if request.GET.ordering == '-capacity' %}active{% endif %}"
+          href="{% sort_url '-capacity' %}">
+          Capacity ↓
+        </a>
+      </li>
+    </ul>
+  </div>
 </div>
 
 <div class="row g-4">

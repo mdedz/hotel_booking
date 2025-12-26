@@ -3,21 +3,40 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 
+from urllib.parse import urlencode
+
 from bookings.models import Booking, Room
 
 def rooms_list(request):
     rooms = Room.objects.all()
-    min_price = request.GET.get('min_price')
-    max_price = request.GET.get('max_price')
-    capacity = request.GET.get('capacity')
-    if min_price:
-        rooms = rooms.filter(price_per_night__gte=min_price)
-    if max_price:
-        rooms = rooms.filter(price_per_night__lte=max_price)
-    if capacity:
-        rooms = rooms.filter(capacity__gte=capacity)
-    return render(request, 'bookings/rooms_list.html', {'rooms': rooms})
+    params = request.GET.copy()
+    
+    # filters
+    if params.get('min_price'):
+        rooms = rooms.filter(price_per_night__gte=params['min_price'])
+    if params.get('max_price'):
+        rooms = rooms.filter(price_per_night__lte=params['max_price'])
+    if params.get('capacity'):
+        rooms = rooms.filter(capacity__gte=params['capacity'])
+    
+    # sorting
+    ordering = params.get('ordering')
+    allowed = {'price_per_night', '-price_per_night', 'capacity', '-capacity'}
 
+    if ordering in allowed:
+        rooms = rooms.order_by(ordering)
+
+    def sort_url(value):
+        q = params.copy()
+        q['ordering'] = value
+        return '?' + urlencode(q)
+
+    return render(request, 'bookings/rooms_list.html', {
+        'rooms': rooms,
+        'sort_url': sort_url,
+        'current_ordering': ordering,
+    })
+    
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)

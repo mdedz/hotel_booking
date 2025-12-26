@@ -23,6 +23,57 @@ body {
   overflow-x: hidden;
 }
 
+.text-muted,
+.text-secondary,
+.small,
+footer,
+footer span {
+  color: rgba(230, 238, 246, 0.65) !important;
+}
+
+.input-icon {
+  width: 100%;
+}
+
+.input-icon .form-control-modern {
+  width: 100%;
+}
+
+.dropdown-menu-dark {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.dropdown-item {
+  color: #e6eef6;
+}
+
+.dropdown-item:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+/* compact filter bar */
+.compact {
+  min-width: 110px;
+}
+
+.form-control-sm {
+  padding: .45rem .6rem;
+  font-size: .85rem;
+  border-radius: 9px;
+}
+
+.input-icon.compact input {
+  padding-left: 34px;
+}
+
+.btn-sm.custom {
+  padding: .45rem .8rem;
+  font-size: .85rem;
+}
+
 /* animated subtle gradient overlay */
 .bg-animated {
   position: fixed;

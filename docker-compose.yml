@@ -6,7 +6,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-hotel}
       POSTGRES_USER: ${POSTGRES_USER:-hotel}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
-      
+
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
       interval: 5s
@@ -19,12 +19,10 @@ services:
   web:
     build: .
     command: sh /app/entrypoint.sh
-    volumes:
-      - .:/app
     ports:
       - "8000:8000"
     environment:
-      DEBUG: ${DEBUG:-1}
+      DEBUG: ${DEBUG:-0}
       SECRET_KEY: ${SECRET_KEY:-changeme}
 
       POSTGRES_DB: ${POSTGRES_DB:-hotel}

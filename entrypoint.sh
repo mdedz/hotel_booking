@@ -7,7 +7,6 @@ until PGPASSWORD=$POSTGRES_PASSWORD psql -h "db" -U "$POSTGRES_USER" -d "$POSTGR
   sleep 2
 done
 
-python manage.py migrate
-python manage.py collectstatic --noinput &&
+python src/manage.py migrate
 
 exec gunicorn hotel_booking.wsgi:application --bind 0.0.0.0:8000 --workers 3

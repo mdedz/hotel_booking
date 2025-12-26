@@ -1,37 +1,46 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
 {% block content %}
-<h2>My Bookings</h2>
 
-<table class="table table-bordered">
-    <thead>
+<div class="container py-5">
+  <h1 class="fw-bold mb-4">My bookings</h1>
+
+  <div class="table-responsive">
+    <table class="table table-hover bg-white rounded shadow-sm">
+      <thead class="table-light">
         <tr>
-            <th>Room</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Nights</th>
-            <th>Status</th>
-            <th>Action</th>
+          <th>Room</th>
+          <th>Dates</th>
+          <th>Status</th>
+          <th></th>
         </tr>
-    </thead>
-    <tbody>
+      </thead>
+      <tbody>
         {% for booking in bookings %}
-        <tr>
-            <td>{{ booking.room.number }} {{ booking.room.name }}</td>
-            <td>{{ booking.start_date }}</td>
-            <td>{{ booking.end_date }}</td>
-            <td>{{ booking.nights }}</td>
-            <td>{{ booking.status }}</td>
+          <tr>
+            <td>{{ booking.room.number }}</td>
+            <td>{{ booking.start_date }} → {{ booking.end_date }}</td>
             <td>
-                {% if booking.status == 'active' %}
-                <form method="post" action="{% url 'cancel_booking' booking.id %}">
-                    {% csrf_token %}
-                    <button class="btn btn-danger btn-sm">Cancel</button>
-                </form>
-                {% endif %}
+              {% if booking.status == 'active' %}
+                <span class="badge bg-success">Active</span>
+              {% else %}
+                <span class="badge bg-danger">Cancelled</span>
+              {% endif %}
             </td>
-        </tr>
+            <td class="text-end">
+              {% if booking.status == 'active' %}
+                <form method="post" action="{% url 'cancel_booking' booking.id %}">
+                  {% csrf_token %}
+                  <button class="btn btn-sm btn-outline-danger">
+                    Cancel
+                  </button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
         {% endfor %}
-    </tbody>
-</table>
+      </tbody>
+    </table>
+  </div>
+</div>
+
 {% endblock %}

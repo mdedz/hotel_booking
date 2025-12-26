@@ -2,21 +2,29 @@ FROM python:3.12-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
+ENV DEBIAN_FRONTEND=noninteractive
+
+WORKDIR /app
 ENV PYTHONPATH=/app/src
 
-WORKDIR /app/src
-
+# system deps
 RUN apt-get update && apt-get install -y \
     build-essential \
+    curl \
+    nodejs \
     libpq-dev \
     postgresql-client \
-    --no-install-recommends \
  && rm -rf /var/lib/apt/lists/*
 
+# python deps
 COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
-COPY entrypoint.sh /app/entrypoint.sh
+# project
+COPY src ./src
+COPY entrypoint.sh .
 
-RUN chmod +x /app/entrypoint.sh
+# django static
+RUN python src/manage.py collectstatic --noinput
+
+CMD ["gunicorn", "hotel_booking.wsgi:application", "--bind", "0.0.0.0:8000"]

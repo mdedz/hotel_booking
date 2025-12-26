@@ -1,18 +1,23 @@
 {% extends 'base.html' %}
-
 {% block content %}
-<h2>Book Room {{ room.number }} {{ room.name }}</h2>
+<div class="card max-w-md mx-auto">
+    <h2 class="text-2xl font-bold mb-4">Book Room {{ room.number }} {{ room.name }}</h2>
 
-<form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label>Start Date</label>
-        <input type="date" name="start_date" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label>End Date</label>
-        <input type="date" name="end_date" class="form-control" required>
-    </div>
-    <button type="submit" class="btn btn-success">Book</button>
-</form>
+    {% if error %}
+        <div class="bg-red-100 text-red-700 p-3 rounded mb-4">{{ error }}</div>
+    {% endif %}
+
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        <div>
+            <label class="block font-semibold mb-1">Start Date</label>
+            <input type="date" name="start_date" class="w-full p-3 rounded border" required>
+        </div>
+        <div>
+            <label class="block font-semibold mb-1">End Date</label>
+            <input type="date" name="end_date" class="w-full p-3 rounded border" required>
+        </div>
+        <button type="submit" class="btn-primary w-full py-3">Book Now</button>
+    </form>
+</div>
 {% endblock %}

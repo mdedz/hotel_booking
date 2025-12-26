@@ -19,7 +19,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'rest_framework',
     'django_filters',
-    'bookings',
+    'bookings.apps.BookingsConfig',
 ]
 
 MIDDLEWARE = [

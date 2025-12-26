@@ -8,8 +8,26 @@ class BookingsConfig(AppConfig):
 
     def ready(self):
         from .models import Room
+
         def create_default_rooms(sender, **kwargs):
-            if not Room.objects.exists():
-                Room.objects.create(number="101", name="Deluxe Room", capacity=2, price_per_night=100)
-                Room.objects.create(number="102", name="Suite", capacity=4, price_per_night=250)
+            if Room.objects.exists():
+                return
+
+            Room.objects.bulk_create(
+                [
+                    Room(
+                        number="101",
+                        name="Deluxe Room",
+                        capacity=2,
+                        price_per_night=100,
+                    ),
+                    Room(
+                        number="102",
+                        name="Suite",
+                        capacity=4,
+                        price_per_night=250,
+                    ),
+                ]
+            )
+
         post_migrate.connect(create_default_rooms, sender=self)

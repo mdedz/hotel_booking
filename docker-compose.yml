@@ -6,11 +6,13 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:-hotel}
       POSTGRES_USER: ${POSTGRES_USER:-hotel}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $POSTGRES_USER"]
       interval: 5s
       timeout: 5s
       retries: 5
+
     volumes:
       - pgdata:/var/lib/postgresql/data
 
@@ -24,7 +26,13 @@ services:
     environment:
       DEBUG: ${DEBUG:-1}
       SECRET_KEY: ${SECRET_KEY:-changeme}
-      DATABASE_URL: postgres://postgres:postgres@db:5432/postgres
+
+      POSTGRES_DB: ${POSTGRES_DB:-hotel}
+      POSTGRES_USER: ${POSTGRES_USER:-hotel}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      DATABASE_HOST: db
+      DATABASE_PORT: 5432
+
     depends_on:
       db:
         condition: service_healthy

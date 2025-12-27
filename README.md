@@ -8,8 +8,11 @@
 
 ## 🚀 Quick Start — Run the Project Locally
 
-### Option 1: Docker (recommended)
-* Admin User is created by default with creads specified in .env
+### Docker (recommended)
+* **Admin User:** Automatically created using credentials from your `.env` file:
+
+  * **Username:** `admin`
+  * **Password:** `admin`
 
 ```bash
 cp .env.example .env

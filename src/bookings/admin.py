@@ -1,6 +1,10 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.html import format_html
+from django.shortcuts import redirect, get_object_or_404
+from django.urls import path
+from django.contrib import messages
+
 from .models import Room, Booking
 
 # Inline bookings inside Room for quick view
@@ -92,10 +96,34 @@ class BookingAdmin(admin.ModelAdmin):
         return format_html('<b style="color:{}">{}</b>', colors.get(obj.status, 'black'), obj.status)
     status_colored.short_description = 'Status'
 
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<int:booking_id>/cancel/',
+                self.admin_site.admin_view(self.cancel_booking_view),
+                name='bookings_booking_cancel',
+            ),
+        ]
+        return custom_urls + urls
+
+    def cancel_booking_view(self, request, booking_id):
+        booking = get_object_or_404(Booking, id=booking_id)
+
+        if booking.status == Booking.STATUS_ACTIVE:
+            booking.status = Booking.STATUS_CANCELLED
+            booking.save()
+            self.message_user(request, "Booking cancelled", messages.SUCCESS)
+        else:
+            self.message_user(request, "Booking already cancelled", messages.WARNING)
+
+        return redirect('admin:bookings_booking_changelist')
+
     # Quick cancel button for active bookings
     def cancel_button(self, obj):
         if obj.status == Booking.STATUS_ACTIVE:
-            url = reverse('admin:bookings_booking_change', args=[obj.id])
+            url = reverse('admin:bookings_booking_cancel', args=[obj.id])
             return format_html('<a class="button" href="{}">Cancel</a>', url)
         return '-'
+
     cancel_button.short_description = 'Cancel Booking'

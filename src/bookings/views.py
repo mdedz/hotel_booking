@@ -1,13 +1,17 @@
+from datetime import date
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
+from django.utils.dateparse import parse_date
 
 from urllib.parse import urlencode
 
 from bookings.models import Booking, Room
 
-def rooms_list(request):
+def rooms_list(request) -> HttpResponse:
     rooms = Room.objects.all()
     params = request.GET.copy()
     
@@ -26,7 +30,7 @@ def rooms_list(request):
     if ordering in allowed:
         rooms = rooms.order_by(ordering)
 
-    def sort_url(value):
+    def sort_url(value) -> str:
         q = params.copy()
         q['ordering'] = value
         return '?' + urlencode(q)
@@ -37,7 +41,7 @@ def rooms_list(request):
         'current_ordering': ordering,
     })
     
-def register_view(request):
+def register_view(request) -> HttpResponseRedirect | HttpResponse:
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
@@ -48,7 +52,7 @@ def register_view(request):
         form = UserCreationForm()
     return render(request, 'bookings/register.html', {'form': form})
 
-def login_view(request):
+def login_view(request) -> HttpResponseRedirect | HttpResponse:
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -58,33 +62,54 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'bookings/login.html', {'form': form})
 
-def logout_view(request):
+def logout_view(request) -> HttpResponseRedirect:
     logout(request)
     return redirect('rooms_list')
 
 @login_required
-def my_bookings_view(request):
+def my_bookings_view(request) -> HttpResponse:
     bookings = Booking.objects.filter(user=request.user)
     return render(request, 'bookings/my_bookings.html', {'bookings': bookings})
 
 @login_required
-def book_room_view(request, room_id):
-    room = get_object_or_404(Room, id=room_id)
+def book_room_view(request, room_id) -> HttpResponse | HttpResponseRedirect:
+    room: Room = get_object_or_404(Room, id=room_id)
     guests_range = range(1, room.capacity + 1)
     if request.method == 'POST':
-        start = request.POST.get('start_date')
-        end = request.POST.get('end_date')
+        start: date | None = parse_date(request.POST.get('start_date'))
+        end: date | None = parse_date(request.POST.get('end_date'))
+        if not start or not end:
+            return render(request, 'bookings/book_room.html', {'room': room, 'guests_range': guests_range, 'error': 'Invalid dates'})
         try:
-            booking = Booking.objects.create(user=request.user, room=room, start_date=start, end_date=end)
+            Booking.objects.create(user=request.user, room=room, start_date=start, end_date=end)
             return redirect('my_bookings')
-        except Exception as e:
-            return render(request, 'bookings/book_room.html', {'room': room, 'guests_range': guests_range, 'error': str(e)})
-    
+        except ValidationError as e:
+            if hasattr(e, "message_dict"):
+                # __all__ → 'text'
+                error = " ".join(
+                    msg for msgs in e.message_dict.values() for msg in msgs
+                )
+            else:
+                error = " ".join(e.messages)
+
+            return render(
+                request,
+                'bookings/book_room.html',
+                {
+                    'room': room,
+                    'guests_range': guests_range,
+                    'error': error,
+                }
+            )
+        except Exception:
+            return render(request, 'bookings/book_room.html', {'room': room, 'guests_range': guests_range, 'error': 'Could not create booking. Try again.'})
     return render(request, 'bookings/book_room.html', {'room': room, 'guests_range': guests_range})
 
-@login_required
 def cancel_booking_view(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id, user=request.user)
+    if request.user.is_staff:
+        booking: Booking = get_object_or_404(Booking, id=booking_id)
+    else:
+        booking: Booking = get_object_or_404(Booking, id=booking_id, user=request.user)
     if request.method == 'POST':
         booking.cancel()
         return redirect('my_bookings')

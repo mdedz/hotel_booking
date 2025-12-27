@@ -142,11 +142,16 @@ footer span {
 .form-control-modern {
   background: rgba(255,255,255,0.02);
   border: 1px solid rgba(255,255,255,0.06);
-  color: #e6eef6;
+  color: #e6eef6 !important;
   border-radius: 10px;
   padding: .75rem .9rem;
   transition: border-color .12s ease, box-shadow .12s ease;
 }
+
+.form-control-modern::placeholder {
+  color: #e6eef6 !important;
+}
+
 .form-control-modern:focus {
   border-color: rgba(124,58,237,0.9);
   box-shadow: 0 6px 30px rgba(124,58,237,0.06);

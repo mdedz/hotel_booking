@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="row justify-content-center">
-  <div class="col-md-8 col-lg-6">
+  <div>
     <div class="card-modern">
       <h2 class="h1-modern">Book Room {{ room.number }} <small class="text-muted-soft">· {{ room.name }}</small></h2>
 
@@ -19,14 +19,14 @@
             <label class="form-label text-muted-soft">Start</label>
             <div class="input-icon">
               <i class="bi bi-calendar icon"></i>
-              <input data-range-start type="text" name="start_date" class="form-control-modern date-input" placeholder="Select start date" required>
+              <input data-range-start type="text" data-room-id="{{ room.id }}" name="start_date" class="form-control-modern date-input" placeholder="Select start date" required>
             </div>
           </div>
           <div class="col-md-6 mb-3">
             <label class="form-label text-muted-soft">End</label>
             <div class="input-icon">
               <i class="bi bi-calendar-check icon"></i>
-              <input data-range-end type="text" name="end_date" class="form-control-modern date-input" placeholder="Select end date" required>
+              <input data-range-end type="text" data-room-id="{{ room.id }}" name="end_date" class="form-control-modern date-input" placeholder="Select end date" required>
             </div>
           </div>
         </div>

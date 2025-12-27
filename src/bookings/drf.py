@@ -1,4 +1,8 @@
 from __future__ import annotations
+from datetime import date, timedelta
+from locale import currency
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -29,6 +33,9 @@ class RoomFilter(FilterSet):
     end_date = filters.DateFilter(method="filter_available")
 
     def filter_available(self, queryset, name, value):
+        if not self.data:
+            return queryset
+        
         start = self.data.get("start_date")
         end = self.data.get("end_date")
 
@@ -63,14 +70,10 @@ class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     search_fields = ['number', 'name']
 
     @action(detail=False, methods=['get'], url_path='available')
-    def available(self, request, *args, **kwargs):
-        start = request.query_params.get('start_date')
-        end = request.query_params.get('end_date')
-        if not start or not end:
-            return Response({'detail': 'start_date and end_date are required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        start_d = parse_date(start)
-        end_d = parse_date(end)
+    def available(self, request, *args, **kwargs) -> Response:
+        start_d: date | None = parse_date(request.query_params.get('start_date'))
+        end_d: date | None = parse_date(request.query_params.get('end_date'))
+
         if not start_d or not end_d or end_d <= start_d:
             return Response({'detail': 'Invalid date range'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -89,7 +92,40 @@ class RoomViewSet(viewsets.ReadOnlyModelViewSet):
         serializer = self.get_serializer(available_rooms, many=True)
         return Response(serializer.data)
 
+    @action(detail=True, methods=['get'], url_path='availability')
+    def availability(self, request, *args, **kwargs) -> Response:
+        room: Room = get_object_or_404(Room, pk=kwargs['pk'])
+        
+        start_d: date | None = parse_date(request.query_params.get('start_date'))
+        end_d: date | None = parse_date(request.query_params.get('end_date'))
 
+        if not start_d or not end_d or end_d <= start_d:
+            return Response({'detail': 'Invalid date range'}, status=status.HTTP_400_BAD_REQUEST)
+
+        bookings = Booking.objects.filter(
+            room=room,
+            status=Booking.STATUS_ACTIVE,
+            start_date__lt=end_d,
+            end_date__gt=start_d,
+        )
+        
+        disabled_dates = set()
+        
+        for booking in bookings:
+            current = max(booking.start_date, start_d)
+            last = min(booking.end_date, end_d)
+            
+            while current < last:
+                disabled_dates.add(current.isoformat())
+                current += timedelta(days=1)
+        
+        return Response({
+            "room_id": room.pk,
+            "disabled_dates": sorted(disabled_dates),
+            "price_per_night": str(room.price_per_night)
+        }, status=status.HTTP_200_OK)
+            
+        
 class BookingViewSet(viewsets.ModelViewSet):
     queryset = Booking.objects.select_related('room', 'user').all()
     filterset_fields = ('status', 'room')

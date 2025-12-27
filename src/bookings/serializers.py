@@ -2,6 +2,7 @@ from __future__ import annotations
 from rest_framework import serializers
 from .models import Room, Booking
 from django.contrib.auth import get_user_model
+from django.db import transaction
 
 User = get_user_model()
 
@@ -43,8 +44,23 @@ class BookingCreateSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict) -> Booking:
         user = self.context['request'].user
-        booking = Booking.objects.create(user=user, **validated_data)
+        room = validated_data['room']
+        start = validated_data['start_date']
+        end = validated_data['end_date']
+
+        with transaction.atomic():
+            # block room row
+            room = Room.objects.select_for_update().get(pk=room.pk)
+            if Booking.objects.filter(
+                room=room,
+                status=Booking.STATUS_ACTIVE,
+                start_date__lt=end,
+                end_date__gt=start
+            ).exists():
+                raise serializers.ValidationError("Room is already booked for these dates")
+            booking = Booking.objects.create(user=user, **validated_data)
         return booking
+    
     
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:

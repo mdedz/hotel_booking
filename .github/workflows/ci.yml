@@ -65,5 +65,4 @@ jobs:
           DATABASE_URL: ${{ env.DATABASE_URL }}
           LOCAL_DEV: 1
         run: |
-          pip install pytest
           pytest src/tests/ -v

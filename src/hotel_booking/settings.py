@@ -112,7 +112,7 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "Hotel Booking API",
-    "DESCRIPTION": "API для бронирования номеров в отеле",
+    "DESCRIPTION": "Hotel Booking API",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }

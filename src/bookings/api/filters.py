@@ -18,11 +18,10 @@ class RoomFilter(FilterSet):
     end_date = filters.DateFilter(method="filter_available")
 
     def filter_available(self, queryset, name, value):
-        if not self.data:
-            return queryset
+        data = self.data or {}
         
-        start = self.data.get("start_date")
-        end = self.data.get("end_date")
+        start = data.get("start_date")
+        end = data.get("end_date")
 
         if not start or not end:
             return queryset

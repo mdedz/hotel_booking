@@ -14,7 +14,7 @@ from bookings.serializers import RoomSerializer
 class RoomViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = (AllowAny,)    
     filterset_class = RoomFilter
     ordering_fields = ['price_per_night', 'capacity', 'number']
     search_fields = ['number', 'name']

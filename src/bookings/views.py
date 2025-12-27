@@ -16,6 +16,26 @@ def rooms_list(request) -> HttpResponse:
     params = request.GET.copy()
     
     # filters
+    start = parse_date(params.get('start_date'))
+    end = parse_date(params.get('end_date'))
+
+    if start and end:
+        if start >= end:
+            return render(
+                request,
+                'bookings/rooms_list.html',
+                {
+                    'rooms': [],
+                    'error': 'End date must be after start date',
+                }
+            )
+
+        rooms = rooms.exclude(
+            bookings__start_date__lt=end,
+            bookings__end_date__gt=start,
+            bookings__status=Booking.STATUS_ACTIVE,
+        )
+    
     if params.get('min_price'):
         rooms = rooms.filter(price_per_night__gte=params['min_price'])
     if params.get('max_price'):

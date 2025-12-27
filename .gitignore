@@ -3,3 +3,4 @@ test.sh
 __pycache__/
 staticfiles/
 .env
+.pytest_cache/

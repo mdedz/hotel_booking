@@ -1,10 +1,39 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Login · HotelBooking{% endblock %}
 
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
+<div class="row justify-content-center">
+  <div>
+    <div class="card-modern">
+      <h1 class="h1-modern">Welcome back</h1>
+      <p class="form-note">Sign in to manage your bookings.</p>
+
+      <form method="post" class="mt-4" novalidate>
+        {% csrf_token %}
+        <div class="mb-3 input-icon">
+            <i class="bi bi-person icon"></i>
+            {{ form.username|add_class:"form-control-modern"|attr:"placeholder:Username" }}
+            {% if form.username.errors %}
+                <div class="form-text text-danger">{{ form.username.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3 input-icon">
+            <i class="bi bi-lock icon"></i>
+            {{ form.password|add_class:"form-control-modern"|attr:"placeholder:Password" }}
+            {% if form.password.errors %}
+                <div class="form-text text-danger">{{ form.password.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <button class="btn btn-primary custom w-100" type="submit">Sign in</button>
+
+        <div class="text-center mt-3 text-muted-soft">
+          New here? <a href="{% url 'register' %}">Create account</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

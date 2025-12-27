@@ -1,10 +1,47 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block title %}Sign up · HotelBooking{% endblock %}
 
 {% block content %}
-<h2>Register</h2>
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Register</button>
-</form>
+<div class="row justify-content-center">
+  <div>
+    <div class="card-modern">
+      <h1 class="h1-modern">Create an account</h1>
+      <p class="form-note">Quick sign up — no fuss. Use a strong password.</p>
+
+      <form method="post" novalidate class="mt-4">
+        {% csrf_token %}
+        <div class="mb-3 input-icon">
+            <i class="bi bi-person icon"></i>
+            {{ form.username|add_class:"form-control-modern"|attr:"placeholder:Username" }}
+            {% if form.username.errors %}
+                <div class="form-text text-danger">{{ form.username.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3 input-icon">
+            <i class="bi bi-lock icon"></i>
+            {{ form.password1|add_class:"form-control-modern"|attr:"placeholder:Password" }}
+            {% if form.password1.errors %}
+                <div class="form-text text-danger">{{ form.password1.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <div class="mb-3 input-icon">
+            <i class="bi bi-lock-fill icon"></i>
+            {{ form.password2|add_class:"form-control-modern"|attr:"placeholder:Password" }}
+            {% if form.password2.errors %}
+                <div class="form-text text-danger">{{ form.password2.errors|striptags }}</div>
+            {% endif %}
+        </div>
+
+        <button class="btn btn-primary custom w-100" type="submit">Create account</button>
+
+        <div class="text-center mt-3 text-muted-soft">
+          Already have an account? <a href="{% url 'login' %}">Log in</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}

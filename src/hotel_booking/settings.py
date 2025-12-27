@@ -20,7 +20,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'bookings.apps.BookingsConfig',
-    "widget_tweaks",
+    'widget_tweaks',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -91,6 +92,14 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
         'rest_framework.filters.SearchFilter',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Hotel Booking API',
+    'DESCRIPTION': 'API для бронирования номеров в отеле',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,  
 }
 
 LOGGING = {

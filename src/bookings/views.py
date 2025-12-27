@@ -16,8 +16,8 @@ def rooms_list(request) -> HttpResponse:
     params = request.GET.copy()
     
     # filters
-    start = parse_date(params.get('start_date'))
-    end = parse_date(params.get('end_date'))
+    start = parse_date(params.get('start_date') or "")
+    end = parse_date(params.get('end_date') or "")
 
     if start and end:
         if start >= end:
@@ -96,8 +96,8 @@ def book_room_view(request, room_id) -> HttpResponse | HttpResponseRedirect:
     room: Room = get_object_or_404(Room, id=room_id)
     guests_range = range(1, room.capacity + 1)
     if request.method == 'POST':
-        start: date | None = parse_date(request.POST.get('start_date'))
-        end: date | None = parse_date(request.POST.get('end_date'))
+        start: date | None = parse_date(request.POST.get('start_date') or "")
+        end: date | None = parse_date(request.POST.get('end_date') or "")
         if not start or not end:
             return render(request, 'bookings/book_room.html', {'room': room, 'guests_range': guests_range, 'error': 'Invalid dates'})
         try:

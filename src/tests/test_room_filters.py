@@ -1,7 +1,9 @@
-import pytest
 from datetime import date, timedelta
-from bookings.models import Booking
+
+import pytest
+
 from bookings.api.filters import RoomFilter
+from bookings.models import Booking
 
 
 @pytest.mark.django_db

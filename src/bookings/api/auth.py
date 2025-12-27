@@ -1,12 +1,12 @@
 from django.contrib.auth import get_user_model
-from rest_framework.permissions import AllowAny
+from drf_spectacular.utils import OpenApiResponse, extend_schema
 from rest_framework import generics
-from drf_spectacular.utils import extend_schema, OpenApiResponse
+from rest_framework.permissions import AllowAny
 
 from bookings.serializers import RegisterSerializer
 
-
 User = get_user_model()
+
 
 @extend_schema(
     summary="User registration",
@@ -18,11 +18,9 @@ User = get_user_model()
     request=RegisterSerializer,
     responses={
         201: RegisterSerializer,
-        400: OpenApiResponse(
-            description="Validation error"
-        ),
+        400: OpenApiResponse(description="Validation error"),
     },
-    tags=["Authentication"]
+    tags=["Authentication"],
 )
 class RegisterAPIView(generics.CreateAPIView):
     """
@@ -37,6 +35,7 @@ class RegisterAPIView(generics.CreateAPIView):
         - Password hashing is handled by the serializer
         - No sensitive fields are returned in the response
     """
+
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [AllowAny]

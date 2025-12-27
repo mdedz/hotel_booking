@@ -1,5 +1,7 @@
+from datetime import date
+
 import pytest
-from datetime import date, timedelta
+
 from bookings.serializers import BookingCreateSerializer
 
 

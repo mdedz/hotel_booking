@@ -1,6 +1,8 @@
-import pytest
 from datetime import date, timedelta
+
+import pytest
 from django.core.exceptions import ValidationError
+
 from bookings.models import Booking
 
 

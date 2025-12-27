@@ -1,8 +1,10 @@
-import pytest
 from datetime import date, timedelta
+
+import pytest
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
-from bookings.models import Room, Booking
+
+from bookings.models import Booking, Room
 
 User = get_user_model()
 

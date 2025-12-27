@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 
 from bookings.models import Booking
 from bookings.serializers import BookingSerializer, BookingCreateSerializer
@@ -40,6 +40,8 @@ class BookingViewSet(viewsets.ModelViewSet):
     ordering_fields = ('start_date', 'end_date')
 
     def get_permissions(self):
+        if self.action == 'list':
+            return [IsAdminUser()]
         if self.action in ('create', 'my_bookings', 'cancel'):
             return [IsAuthenticated()]
         if self.action in ('update', 'partial_update', 'destroy'):
@@ -50,20 +52,6 @@ class BookingViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return BookingCreateSerializer
         return BookingSerializer
-
-    def list(self, request, *args, **kwargs):
-        """
-        List all bookings.
-
-        Only staff users can access this endpoint. Regular users should use the `/my/` endpoint.
-
-        Returns:
-            - 200: List of bookings for staff users.
-            - 403: Forbidden for non-staff users.
-        """
-        if request.user.is_authenticated and request.user.is_staff:
-            return super().list(request, *args, **kwargs)
-        return Response({'detail': 'Use /api/bookings/my/ to view your bookings or authenticate as staff'}, status=status.HTTP_403_FORBIDDEN)
 
     @action(detail=False, methods=['get'], url_path='my', permission_classes=[IsAuthenticated])
     def my_bookings(self, request):

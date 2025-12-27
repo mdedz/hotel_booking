@@ -24,24 +24,6 @@ docker-compose up --build
 
 ---
 
-### Вариант 2: Локальный запуск (без Docker)
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-cp .env.example .env
-python src/manage.py migrate
-python src/manage.py createsu
-python src/manage.py collectstatic --noinput
-python src/manage.py runserver
-```
-
-Открыть: [http://127.0.0.1:8000](http://127.0.0.1:8000)
-
----
-
 ## 🧾 Техническое задание — чек-лист соответствия
 
 ### Основные требования

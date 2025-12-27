@@ -23,24 +23,6 @@ docker-compose up --build
 
 ---
 
-### Option 2: Local run (without Docker)
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-cp .env.example .env
-python src/manage.py migrate
-python src/manage.py createsu
-python src/manage.py collectstatic --noinput
-python src/manage.py runserver
-```
-
-Open: [http://127.0.0.1:8000](http://127.0.0.1:8000)
-
----
-
 ## 🧾 Technical Assignment — Compliance Checklist
 
 ### Core requirements

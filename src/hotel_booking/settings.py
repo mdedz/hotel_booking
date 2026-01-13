@@ -65,7 +65,7 @@ DATABASES = {
     }
 }
 
-if os.getenv("LOCAL_DEV", default=False):  # Used only for tests
+if os.getenv("LOCAL_DEV") in ("1", "true", "True"):  # Used only for tests
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",

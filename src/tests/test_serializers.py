@@ -1,12 +1,13 @@
 from datetime import date
 
 import pytest
+from rest_framework import serializers
 
 from bookings.serializers import BookingCreateSerializer
 
 
 @pytest.mark.django_db
-def test_booking_serializer_validates_date_order(room, user):
+def test_booking_serializer_rejects_invalid_date_order_on_save(room, user):
     data = {
         "room": room.id,
         "start_date": date.today(),
@@ -14,7 +15,11 @@ def test_booking_serializer_validates_date_order(room, user):
     }
 
     serializer = BookingCreateSerializer(
-        data=data, context={"request": type("R", (), {"user": user})()}
+        data=data,
+        context={"request": type("R", (), {"user": user})()},
     )
 
-    assert not serializer.is_valid()
+    assert serializer.is_valid()
+
+    with pytest.raises(serializers.ValidationError):
+        serializer.save()

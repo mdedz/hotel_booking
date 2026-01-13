@@ -1,7 +1,5 @@
-from __future__ import annotations
-
 from django.contrib.auth import get_user_model
-from django.db import transaction
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
 from .models import Booking, Room
@@ -38,19 +36,12 @@ class BookingCreateSerializer(serializers.ModelSerializer):
         model = Booking
         fields = ("id", "room", "start_date", "end_date")
 
-    def validate(self, attrs: dict) -> dict:
-        if attrs["end_date"] <= attrs["start_date"]:
-            raise serializers.ValidationError("end date must be after start date")
-        return attrs
-
-    def create(self, validated_data: dict) -> Booking:
-        user = self.context["request"].user
-        room = validated_data["room"]
-
-        with transaction.atomic():
-            room = Room.objects.select_for_update().get(pk=room.pk)
-            booking = Booking.objects.create(user=user, **validated_data)
-        return booking
+    def create(self, validated_data):
+        validated_data["user"] = self.context["request"].user
+        try:
+            return super().create(validated_data)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(e.message_dict or e.messages)
 
 
 class RegisterSerializer(serializers.ModelSerializer):

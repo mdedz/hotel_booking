@@ -46,3 +46,14 @@ class RoomFilter(FilterSet):
             "start_date",
             "end_date",
         )
+
+
+class BookingFilter(FilterSet):
+    class Meta:
+        model = Booking
+        fields = {
+            "status": ["exact"],
+            "room": ["exact"],
+            "start_date": ["gte", "lte"],
+            "end_date": ["gte", "lte"],
+        }

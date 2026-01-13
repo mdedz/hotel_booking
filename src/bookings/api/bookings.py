@@ -1,8 +1,11 @@
-from rest_framework import status, viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.filters import OrderingFilter
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
+from bookings.api.filters import BookingFilter
 from bookings.models import Booking
 from bookings.permissions import IsOwnerOrAdmin
 from bookings.serializers import BookingCreateSerializer, BookingSerializer
@@ -23,7 +26,7 @@ class BookingViewSet(viewsets.ModelViewSet):
     create:
         Create a new booking for authenticated users.
 
-    my_bookings:
+    my:
         Retrieve all bookings for the authenticated user.
 
     update / partial_update:
@@ -37,15 +40,16 @@ class BookingViewSet(viewsets.ModelViewSet):
     """
 
     queryset = Booking.objects.select_related("room", "user").all()
-    filterset_fields = ("status", "room")
-    ordering_fields = ("start_date", "end_date")
+    filterset_class = BookingFilter
+    filter_backends = [DjangoFilterBackend, OrderingFilter]
+    ordering_fields = ("start_date", "end_date", "created_at")
 
     def get_permissions(self):
         if self.action == "list":
             return [IsAdminUser()]
-        if self.action in ("create", "my_bookings", "cancel"):
+        if self.action in ("create", "my"):
             return [IsAuthenticated()]
-        if self.action in ("update", "partial_update", "destroy"):
+        if self.action in ("update", "partial_update", "destroy", "cancel"):
             return [IsOwnerOrAdmin()]
         return [AllowAny()]
 
@@ -54,13 +58,8 @@ class BookingViewSet(viewsets.ModelViewSet):
             return BookingCreateSerializer
         return BookingSerializer
 
-    @action(
-        detail=False,
-        methods=["get"],
-        url_path="my",
-        permission_classes=[IsAuthenticated],
-    )
-    def my_bookings(self, request):
+    @action(detail=False, methods=["get"])
+    def my(self, request):
         """
         Retrieve bookings for the authenticated user.
 
@@ -70,37 +69,14 @@ class BookingViewSet(viewsets.ModelViewSet):
         Permissions:
             IsAuthenticated
         """
-        qs = Booking.objects.filter(user=request.user)
+        qs = self.filter_queryset(self.get_queryset().filter(user=request.user))
         page = self.paginate_queryset(qs)
-        serializer = BookingSerializer(page or qs, many=page is not None)
+        serializer = self.get_serializer(page or qs, many=True)
         return (
             self.get_paginated_response(serializer.data)
             if page is not None
             else Response(serializer.data)
         )
-
-    def create(self, request, *args, **kwargs):
-        """
-        Create a new booking.
-
-        POST:
-            Creates a booking for the authenticated user using provided room and dates.
-
-        Request Body:
-            - room: integer (room ID)
-            - start_date: string (YYYY-MM-DD)
-            - end_date: string (YYYY-MM-DD)
-
-        Responses:
-            - 201: Booking created successfully.
-            - 400: Invalid data.
-        """
-        serializer = self.get_serializer(
-            data=request.data, context={"request": request}
-        )
-        serializer.is_valid(raise_exception=True)
-        booking = serializer.save()
-        return Response(BookingSerializer(booking).data, status=status.HTTP_201_CREATED)
 
     @action(detail=True, methods=["post"], url_path="cancel")
     def cancel(self, request, pk=None):
@@ -119,7 +95,5 @@ class BookingViewSet(viewsets.ModelViewSet):
             - 403: Not allowed.
         """
         booking = self.get_object()
-        if not (request.user.is_staff or booking.user == request.user):
-            return Response({"detail": "Not allowed"}, status=status.HTTP_403_FORBIDDEN)
         booking.cancel(by_user=request.user)
-        return Response({"detail": "cancelled"}, status=status.HTTP_200_OK)
+        return Response({"detail": "cancelled"})

@@ -1,7 +1,6 @@
 from datetime import date, timedelta
 
 import pytest
-from django.urls import reverse
 
 
 @pytest.mark.django_db
@@ -10,7 +9,7 @@ def test_rooms_available_endpoint(api_client, room):
     end = start + timedelta(days=3)
 
     resp = api_client.get(
-        reverse("room-available"),
+        "/api/rooms/",
         {"start_date": start, "end_date": end},
     )
 
